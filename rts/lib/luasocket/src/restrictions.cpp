@@ -40,10 +40,10 @@ void CLuaSocketRestrictions::KillStatic() { spring::SafeDestruct(luaSocketRestri
 CLuaSocketRestrictions::CLuaSocketRestrictions()
 {
 #ifndef TEST
-	addRules(TCP_CONNECT, configHandler->GetString("TCPAllowConnect"));
-	addRules(TCP_LISTEN,  configHandler->GetString("TCPAllowListen"));
-	addRules(UDP_CONNECT, configHandler->GetString("UDPAllowConnect"));
-	addRules(UDP_LISTEN,  configHandler->GetString("UDPAllowListen"));
+	addRules(SPRING_TCP_CONNECT, configHandler->GetString("TCPAllowConnect"));
+	addRules(SPRING_TCP_LISTEN,  configHandler->GetString("TCPAllowListen"));
+	addRules(SPRING_UDP_CONNECT, configHandler->GetString("UDPAllowConnect"));
+	addRules(SPRING_UDP_LISTEN,  configHandler->GetString("UDPAllowListen"));
 #endif
 }
 
@@ -51,7 +51,7 @@ CLuaSocketRestrictions::~CLuaSocketRestrictions()
 {
 	LOG("[%s] dumping luasocket rules:", __func__);
 
-	for (int i = 0; i < ALL_RULES; i++) {
+	for (int i = 0; i < SPRING_ALL_RULES; i++) {
 		for (const TSocketRule& rule: restrictions[i]) {
 			LOG("%s %s %s %d", ruleToStr((RestrictType)i), rule.allowed ? "ALLOW" : "DENY ", rule.hostname.c_str(), rule.port);
 		}
@@ -144,12 +144,12 @@ const TSocketRule* CLuaSocketRestrictions::getRule(RestrictType type, const char
 	int start;
 	int end;
 
-	if (type != ALL_RULES) {
+	if (type != SPRING_ALL_RULES) {
 		start = type;
 		end = start + 1;
 	} else {
 		start = 0;
-		end = ALL_RULES;
+		end = SPRING_ALL_RULES;
 	}
 
 	for (int i = start; i < end; i++) {
@@ -169,7 +169,7 @@ const TSocketRule* CLuaSocketRestrictions::getRule(RestrictType type, const char
 
 void CLuaSocketRestrictions::addIP(const char* hostname, const char* ip)
 {
-	for (int i = 0; i < ALL_RULES; i++) {
+	for (int i = 0; i < SPRING_ALL_RULES; i++) {
 		for (const TSocketRule& rule: restrictions[i]) {
 			if (rule.hostname != hostname)
 				continue;
@@ -185,10 +185,10 @@ void CLuaSocketRestrictions::addIP(const char* hostname, const char* ip)
 
 const char* CLuaSocketRestrictions::ruleToStr(RestrictType type) {
 	switch (type) {
-		case TCP_CONNECT: return "TCP_CONNECT";
-		case TCP_LISTEN : return "TCP_LISTEN ";
-		case UDP_LISTEN : return "UDP_LISTEN ";
-		case UDP_CONNECT: return "UDP_CONNECT";
+		case SPRING_TCP_CONNECT: return "TCP_CONNECT";
+		case SPRING_TCP_LISTEN : return "TCP_LISTEN ";
+		case SPRING_UDP_LISTEN : return "UDP_LISTEN ";
+		case SPRING_UDP_CONNECT: return "UDP_CONNECT";
 		default: return "INVALID";
 	}
 }

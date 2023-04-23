@@ -145,7 +145,7 @@ static int meth_sendto(lua_State *L) {
     memset(&addr, 0, sizeof(addr));
     if (!inet_aton(ip, &addr.sin_addr)) 
         luaL_argerror(L, 3, "invalid ip address");
-    if (!luaSocketRestrictions->isAllowed(CLuaSocketRestrictions::UDP_CONNECT, ip, port)){
+    if (!luaSocketRestrictions->isAllowed(CLuaSocketRestrictions::SPRING_UDP_CONNECT, ip, port)){
         lua_pushnil(L);
         lua_pushstring(L, "sendto: access not allowed");
         return 2;

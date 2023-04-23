@@ -21,13 +21,12 @@ class CLuaSocketRestrictions {
 public:
 
 	enum RestrictType{
-		TCP_CONNECT = 0,
-		TCP_LISTEN,
-		UDP_CONNECT,
-		UDP_LISTEN,
-		ALL_RULES
+		SPRING_TCP_CONNECT = 0,
+		SPRING_TCP_LISTEN,
+		SPRING_UDP_CONNECT,
+		SPRING_UDP_LISTEN,
+		SPRING_ALL_RULES
 	};
-
 
 	CLuaSocketRestrictions();
 	~CLuaSocketRestrictions();
@@ -72,7 +71,7 @@ private:
 	*/
 	const char* ruleToStr(RestrictType type);
 
-	std::list<TSocketRule> restrictions[ALL_RULES];
+	std::list<TSocketRule> restrictions[SPRING_ALL_RULES];
 
 };
 

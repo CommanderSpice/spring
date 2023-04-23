@@ -80,7 +80,7 @@ CPreGame::CPreGame(std::shared_ptr<ClientSetup> setup)
 	if (!clientSetup->isHost) {
 		LOG("[%s] using client IP %s and port %i", __func__, clientSetup->hostIP.c_str(), clientSetup->hostPort);
 		// don't allow luasocket to connect to the host
-		luaSocketRestrictions->addRule(CLuaSocketRestrictions::UDP_CONNECT, clientSetup->hostIP, clientSetup->hostPort, false);
+		luaSocketRestrictions->addRule(CLuaSocketRestrictions::SPRING_UDP_CONNECT, clientSetup->hostIP, clientSetup->hostPort, false);
 		clientNet->InitClient(clientSetup, SpringVersion::GetSync(), Platform::GetPlatformStr());
 	} else {
 		LOG("[%s] using server IP %s and port %i", __func__, clientSetup->hostIP.c_str(), clientSetup->hostPort);

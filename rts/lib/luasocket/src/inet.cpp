@@ -87,7 +87,7 @@ static int inet_global_tohostname(lua_State *L) {
 static int inet_global_toip(lua_State *L)
 {
     const char *address = luaL_checkstring(L, 1);
-    if (!luaSocketRestrictions->isAllowed(CLuaSocketRestrictions::ALL_RULES, address)) {
+    if (!luaSocketRestrictions->isAllowed(CLuaSocketRestrictions::SPRING_ALL_RULES, address)) {
         lua_pushnil(L);
         LOG_L(L_ERROR, "Access to '%s' denied", address);
         lua_pushstring(L, "hostname not in allowed list");
@@ -233,14 +233,14 @@ bool isAllowed(p_socket ps, const char *address, unsigned short port, bool conne
     #endif
     if (rawtype == SOCK_STREAM)
 	if (connect)
-            type = CLuaSocketRestrictions::TCP_CONNECT;
+            type = CLuaSocketRestrictions::SPRING_TCP_CONNECT;
         else
-            type = CLuaSocketRestrictions::TCP_LISTEN;
+            type = CLuaSocketRestrictions::SPRING_TCP_LISTEN;
     else //SOCK_DGRAM
         if (connect)
-            type = CLuaSocketRestrictions::UDP_CONNECT;
+            type = CLuaSocketRestrictions::SPRING_UDP_CONNECT;
         else
-            type = CLuaSocketRestrictions::UDP_LISTEN;
+            type = CLuaSocketRestrictions::SPRING_UDP_LISTEN;
     if (!luaSocketRestrictions->isAllowed(type, address, port)) {
         LOG_L(L_ERROR, "Access to '%s:%d' denied", address, port);
         return false;
