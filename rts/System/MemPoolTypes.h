@@ -19,7 +19,7 @@
 template<size_t S> struct DynMemPool {
 public:
 	void* allocMem(size_t size) {
-		assert(size <= PAGE_SIZE());
+		assert(size <= SPRING_PAGE_SIZE());
 		uint8_t* m = nullptr;
 
 		size_t i = 0;
@@ -41,7 +41,7 @@ public:
 
 
 	template<typename T, typename... A> T* alloc(A&&... a) {
-		static_assert(sizeof(T) <= PAGE_SIZE(), "");
+		static_assert(sizeof(T) <= SPRING_PAGE_SIZE(), "");
 		return new (allocMem(sizeof(T))) T(std::forward<A>(a)...);
 	}
 
@@ -52,7 +52,7 @@ public:
 		const auto iter = table.find(m);
 		const auto pair = std::pair<void*, size_t>{iter->first, iter->second};
 
-		std::memset(pages[pair.second].data(), 0, PAGE_SIZE());
+		std::memset(pages[pair.second].data(), 0, SPRING_PAGE_SIZE());
 
 		indcs.push_back(pair.second);
 		table.erase(pair.first);
@@ -70,10 +70,10 @@ public:
 		freeMem(m);
 	}
 
-	static constexpr size_t PAGE_SIZE() { return S; }
+	static constexpr size_t SPRING_PAGE_SIZE() { return S; }
 
-	size_t alloc_size() const { return (pages.size() * PAGE_SIZE()); } // size of total number of pages added over the pool's lifetime
-	size_t freed_size() const { return (indcs.size() * PAGE_SIZE()); } // size of number of pages that were freed and are awaiting reuse
+	size_t alloc_size() const { return (pages.size() * SPRING_PAGE_SIZE()); } // size of total number of pages added over the pool's lifetime
+	size_t freed_size() const { return (indcs.size() * SPRING_PAGE_SIZE()); } // size of number of pages that were freed and are awaiting reuse
 
 	bool mapped(void* p) const { return (table.find(p) != table.end()); }
 	bool alloced(void* p) const { return ((curr_page_index < pages.size()) && (pages[curr_page_index].data() == p)); }
@@ -110,7 +110,7 @@ private:
 template<size_t S, size_t N, size_t K> struct FixedDynMemPool {
 public:
 	template<typename T, typename... A> T* alloc(A&&... a) {
-		static_assert(sizeof(T) <= PAGE_SIZE(), "");
+		static_assert(sizeof(T) <= SPRING_PAGE_SIZE(), "");
 		return (new (allocMem(sizeof(T))) T(std::forward<A>(a)...));
 	}
 
@@ -137,14 +137,14 @@ public:
 
 		const uint32_t idx = spring::VectorBackPop(indcs);
 
-		assert(size <= PAGE_SIZE());
+		assert(size <= SPRING_PAGE_SIZE());
 		memcpy(ptr = page_mem(page_index = idx), &idx, sizeof(idx));
 		return (ptr + sizeof(idx));
 	}
 
 
 	template<typename T> void free(T*& ptr) {
-		static_assert(sizeof(T) <= PAGE_SIZE(), "");
+		static_assert(sizeof(T) <= SPRING_PAGE_SIZE(), "");
 
 		T* tmp = ptr;
 
@@ -181,7 +181,7 @@ public:
 
 	static constexpr size_t NUM_CHUNKS() { return N; } // size K*S
 	static constexpr size_t NUM_PAGES() { return K; } // per chunk
-	static constexpr size_t PAGE_SIZE() { return S; }
+	static constexpr size_t SPRING_PAGE_SIZE() { return S; }
 
 	const uint8_t* page_mem(size_t idx, size_t ofs = 0) const {
 		const t_chunk_ptr& chunk_ptr = chunks[idx / K];
@@ -201,8 +201,8 @@ public:
 		return (*reinterpret_cast<const uint32_t*>(idx_ptr));
 	}
 
-	size_t alloc_size() const { return (num_chunks * NUM_PAGES() * PAGE_SIZE()); } // size of total number of pages added over the pool's lifetime
-	size_t freed_size() const { return (indcs.size() * PAGE_SIZE()); } // size of number of pages that were freed and are awaiting reuse
+	size_t alloc_size() const { return (num_chunks * NUM_PAGES() * SPRING_PAGE_SIZE()); } // size of total number of pages added over the pool's lifetime
+	size_t freed_size() const { return (indcs.size() * SPRING_PAGE_SIZE()); } // size of number of pages that were freed and are awaiting reuse
 
 	bool mapped(void* ptr) const { return ((page_idx(ptr) < (num_chunks * K)) && (page_mem(page_idx(ptr), sizeof(uint32_t)) == ptr)); }
 	bool alloced(void* ptr) const { return ((page_index < (num_chunks * K)) && (page_mem(page_index, sizeof(uint32_t)) == ptr)); }
@@ -227,7 +227,7 @@ public:
 	StaticMemPool() { clear(); }
 
 	void* allocMem(size_t size) {
-		assert(size <= PAGE_SIZE());
+		assert(size <= SPRING_PAGE_SIZE());
 		static_assert(NUM_PAGES() != 0, "");
 
 		size_t i = 0;
@@ -245,7 +245,7 @@ public:
 
 
 	template<typename T, typename... A> T* alloc(A&&... a) {
-		static_assert(sizeof(T) <= PAGE_SIZE(), "");
+		static_assert(sizeof(T) <= SPRING_PAGE_SIZE(), "");
 		return new (allocMem(sizeof(T))) T(std::forward<A>(a)...);
 	}
 
@@ -253,10 +253,10 @@ public:
 		assert(can_free());
 		assert(mapped(m));
 
-		std::memset(m, 0, PAGE_SIZE());
+		std::memset(m, 0, SPRING_PAGE_SIZE());
 
 		// mark page as free
-		indcs[free_page_count++] = base_offset(m) / PAGE_SIZE();
+		indcs[free_page_count++] = base_offset(m) / SPRING_PAGE_SIZE();
 	}
 
 
@@ -270,14 +270,14 @@ public:
 
 
 	static constexpr size_t NUM_PAGES() { return N; }
-	static constexpr size_t PAGE_SIZE() { return S; }
+	static constexpr size_t SPRING_PAGE_SIZE() { return S; }
 
-	size_t alloc_size() const { return (used_page_count * PAGE_SIZE()); } // size of total number of pages added over the pool's lifetime
-	size_t freed_size() const { return (free_page_count * PAGE_SIZE()); } // size of number of pages that were freed and are awaiting reuse
-	size_t total_size() const { return (NUM_PAGES() * PAGE_SIZE()); }
+	size_t alloc_size() const { return (used_page_count * SPRING_PAGE_SIZE()); } // size of total number of pages added over the pool's lifetime
+	size_t freed_size() const { return (free_page_count * SPRING_PAGE_SIZE()); } // size of number of pages that were freed and are awaiting reuse
+	size_t total_size() const { return (NUM_PAGES() * SPRING_PAGE_SIZE()); }
 	size_t base_offset(const void* p) const { return (reinterpret_cast<const uint8_t*>(p) - reinterpret_cast<const uint8_t*>(pages[0].data())); }
 
-	bool mapped(const void* p) const { return (((base_offset(p) / PAGE_SIZE()) < total_size()) && ((base_offset(p) % PAGE_SIZE()) == 0)); }
+	bool mapped(const void* p) const { return (((base_offset(p) / SPRING_PAGE_SIZE()) < total_size()) && ((base_offset(p) % SPRING_PAGE_SIZE()) == 0)); }
 	bool alloced(const void* p) const { return (pages[curr_page_index].data() == p); }
 
 	bool can_alloc() const { return (used_page_count < NUM_PAGES() || free_page_count > 0); }
