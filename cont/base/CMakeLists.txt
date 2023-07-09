@@ -9,8 +9,7 @@ find_package(SevenZip REQUIRED)
 add_custom_target(basecontent ALL)
 
 macro(create_base_content_archive outputdir filename files)
-	### FIXME: find a nicer way to silence 7z
-	if(UNIX)
+	if(UNIX OR MINGW)
 		set(QUIET ">/dev/null")
 	elseif(WIN32)
 		set(QUIET ">nul")
