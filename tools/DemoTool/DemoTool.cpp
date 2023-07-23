@@ -50,6 +50,7 @@ int main (int argc, char* argv[])
 	} else {
 		std::cout << "No demofile given" << std::endl;
 		gflags::ShowUsageWithFlags(argv[0]);
+		return 1;
 	}
 
 	CDemoReader reader(filename, 0.0f);
